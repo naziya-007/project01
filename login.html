@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sign in · TrustVault{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-intro">
+    <p class="eyebrow">Welcome back</p>
+    <h1>Sign in to TrustVault</h1>
+    <p class="lead">Access your documents, manage sharing, and keep every action accountable.</p>
+    <ul class="feature-list">
+      <li>Encrypted document storage</li>
+      <li>Permission-based access</li>
+      <li>Complete audit history</li>
+    </ul>
+  </div>
+  <div class="auth-form">
+  <h2>Account sign in</h2>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" action="{{ url_for('ui.login') }}">
+    <label>E-mail <input type="email" name="email" required autocomplete="username" maxlength="254"></label>
+    <label>Password <input type="password" name="password" required autocomplete="current-password" maxlength="256"></label>
+    <button>Sign in</button>
+  </form>
+  <p class="muted">Demo accounts are listed in the project README.</p>
+  </div>
+</section>
+{% endblock %}

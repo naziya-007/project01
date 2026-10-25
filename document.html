@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ doc.name }}</h1>
+<p class="muted">{{ doc.category }} · owner {{ doc.owner_email }} · <span class="mono">{{ doc.id }}</span></p>
+<div class="grid">
+<section class="card">
+  <h2>Who can reach it now</h2>
+  <p>Owner: {{ doc.owner_email }}</p>
+  <table><thead><tr><th>Person</th><th>Access</th><th>Via</th></tr></thead><tbody>
+  {% for gr in doc.grants %}<tr><td>{{ gr.email }}{% if not gr.is_active %} (deactivated){% endif %}</td><td>{{ gr.permission }}</td><td>{{ gr.granted_via }}</td></tr>
+  {% else %}<tr><td colspan="3" class="muted">No grants.</td></tr>{% endfor %}</tbody></table>
+  <h3>Share links</h3>
+  <table><thead><tr><th>Label</th><th>Expires</th><th>Used</th><th>State</th></tr></thead><tbody>
+  {% for s in doc.share_links %}<tr><td>{{ s.label or '—' }}</td><td>{{ s.expires_at.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ s.download_count }}{% if s.max_downloads %}/{{ s.max_downloads }}{% endif %}</td><td>{{ 'revoked' if s.revoked_at else 'active' }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted">None.</td></tr>{% endfor %}</tbody></table>
+</section>
+<section class="card">
+  <h2>Transfer ownership</h2>
+  <p class="muted">For when an owner leaves. The previous owner loses access and their share links are revoked. Recorded in the audit trail.</p>
+  <form method="post" action="{{ url_for('ui.admin_transfer', doc_id=doc.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>New owner e-mail <input type="email" name="new_owner_email" required></label>
+    <button>Transfer</button>
+  </form>
+</section>
+</div>
+<section class="card">
+  <h2>Every event for this document</h2>
+  <table><thead><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Outcome</th><th>IP</th></tr></thead><tbody>
+  {% for e in doc.recent_events %}<tr><td>{{ e.id }}</td><td>{{ e.at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ e.actor_email or 'share link / anonymous' }}</td><td>{{ e.action }}</td><td><span class="badge {{ e.outcome }}">{{ e.outcome }}</span></td><td>{{ e.ip }}</td></tr>
+  {% endfor %}</tbody></table>
+</section>
+{% endblock %}

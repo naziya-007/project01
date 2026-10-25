@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Audit trail</h1>
+<form class="search" method="get">
+  <input name="actor" placeholder="Actor e-mail" value="{{ args.get('actor', '') }}">
+  <input name="action" placeholder="Action, e.g. download" value="{{ args.get('action', '') }}">
+  <input name="document_id" placeholder="Document id" value="{{ args.get('document_id', '') }}">
+  <select name="outcome"><option value="">Any outcome</option>{% for o in ['success','denied','failure'] %}<option {% if args.get('outcome') == o %}selected{% endif %}>{{ o }}</option>{% endfor %}</select>
+  <label class="small"><input type="checkbox" name="permission_only" value="1" {% if args.get('permission_only') == '1' %}checked{% endif %}> permission changes only</label>
+  <button>Filter</button>
+</form>
+<table class="audit"><thead><tr><th>#</th><th>When (UTC)</th><th>Who</th><th>Action</th><th>Outcome</th><th>Document</th><th>IP</th><th>Details</th><th>Hash</th></tr></thead><tbody>
+{% for e in events %}
+<tr><td>{{ e.id }}</td><td>{{ e.at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ e.actor_email or 'anonymous' }}</td><td>{{ e.action }}</td>
+<td><span class="badge {{ e.outcome }}">{{ e.outcome }}</span></td>
+<td class="mono">{% if e.document_id %}<a href="{{ url_for('ui.admin_document', doc_id=e.document_id) }}">{{ e.document_id[:8] }}…</a>{% endif %}</td>
+<td>{{ e.ip }}</td><td class="small mono details">{{ e.details|tojson }}</td><td class="mono small" title="{{ e.hash }}">{{ e.hash[:10] }}…</td></tr>
+{% endfor %}</tbody></table>
+{% endblock %}

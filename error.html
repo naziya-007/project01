@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · TrustVault{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>{{ code }} {{ name }}</h1>
+  {% if message %}<p>{{ message }}</p>{% elif code == 404 %}<p>There is nothing here, or you do not have access to it.</p>{% endif %}
+  <p class="muted">Reference: {{ request_id }}</p>
+  <p><a href="{{ url_for('ui.documents') }}">Back to documents</a></p>
+</section>
+{% endblock %}

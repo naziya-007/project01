@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+  <div><p class="eyebrow">Workspace</p><h1>Trash</h1><p class="page-description">Restore deleted documents before they are permanently purged.</p></div>
+</div>
+<section class="notice"><strong>Retention policy:</strong> Deleted documents can be restored for {{ config.TV.TRASH_RETENTION_DAYS }} days. Share links are revoked when a document is deleted.</section>
+{% if items %}
+<section class="content-section results-section"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Category</th><th>Deleted</th><th></th></tr></thead><tbody>
+{% for d in items %}
+<tr><td>{{ d.name }}</td><td>{{ d.category }}</td><td>{{ d.deleted_at.strftime('%Y-%m-%d %H:%M') }} UTC</td>
+<td><form method="post" action="{{ url_for('ui.restore', doc_id=d.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button>Restore</button></form></td></tr>
+{% endfor %}</tbody></table></div></section>
+{% else %}<section class="empty-state"><h2>Trash is empty</h2><p class="muted">Deleted documents will appear here during their retention period.</p></section>{% endif %}
+{% endblock %}

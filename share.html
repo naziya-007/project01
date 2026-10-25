@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Shared document · TrustVault{% endblock %}
+{% block content %}
+<section class="card narrow" id="share">
+  <h1>Shared document</h1>
+  <p id="share-status" class="muted">Checking link…</p>
+  <div id="share-details" hidden>
+    <p><strong id="share-name"></strong> · <span id="share-size"></span></p>
+    <p class="muted">Link expires <span id="share-expiry"></span><span id="share-remaining"></span></p>
+    <form method="post" action="{{ url_for('ui.share_download') }}">
+      <input type="hidden" name="token" id="share-token">
+      <button>Download</button>
+    </form>
+  </div>
+</section>
+<script src="{{ url_for('static', filename='share.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TrustVault{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <div class="brand-block">
+    <a class="brand" href="{{ url_for('ui.documents') }}">Trust<span>Vault</span></a>
+    {% if current_user %}<span class="brand-caption">Secure document sharing</span>{% endif %}
+  </div>
+  {% if current_user %}
+  <nav aria-label="Main navigation">
+    {% if current_user.role == 'admin' %}
+      <span class="nav-group-label">Administration</span>
+      <a href="{{ url_for('ui.admin_dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('ui.admin_documents') }}">Documents</a>
+      <a href="{{ url_for('ui.admin_users') }}">Users</a>
+      <a href="{{ url_for('ui.admin_audit') }}">Audit trail</a>
+    {% else %}
+      <span class="nav-group-label">Workspace</span>
+      <a href="{{ url_for('ui.documents') }}">Documents</a>
+      {% if current_user.role == 'owner' %}<a href="{{ url_for('ui.upload') }}">Upload</a>
+      <a href="{{ url_for('ui.trash') }}">Trash</a>{% endif %}
+    {% endif %}
+    <a class="account-link" href="{{ url_for('ui.account') }}">{{ current_user.email }} <span class="role">{{ current_user.role }}</span></a>
+    <form method="post" action="{{ url_for('ui.logout') }}" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="link">Sign out</button>
+    </form>
+  </nav>
+  {% endif %}
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block page_header %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+<footer>Server-side authorization on every request · encrypted at rest · hash-chained audit trail</footer>
+</body>
+</html>

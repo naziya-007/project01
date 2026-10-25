@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Users</h1>
+<table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Sessions</th><th>Change</th><th>Reset password</th></tr></thead><tbody>
+{% for u in users %}
+<tr>
+  <td>{{ u.full_name }}<div class="muted">{{ u.email }}</div></td>
+  <td>{{ u.role }}</td>
+  <td>{% if u.is_active %}active{% else %}<strong>deactivated</strong>{% endif %}{% if u.locked_until %}<div class="muted small">lockout until {{ u.locked_until.strftime('%H:%M') }}</div>{% endif %}</td>
+  <td>{{ u.active_sessions }}</td>
+  <td>{% if u.id != current_user.id %}
+    <form method="post" action="{{ url_for('ui.admin_update_user', user_id=u.id) }}" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <select name="role">{% for r in ['admin','owner','viewer'] %}<option {% if r == u.role %}selected{% endif %}>{{ r }}</option>{% endfor %}</select>
+      <select name="is_active"><option value="true" {% if u.is_active %}selected{% endif %}>active</option><option value="false" {% if not u.is_active %}selected{% endif %}>deactivated</option></select>
+      <button class="small">Apply</button>
+    </form>{% else %}<span class="muted">you</span>{% endif %}</td>
+  <td>{% if u.id != current_user.id %}
+    <form method="post" action="{{ url_for('ui.admin_reset_password', user_id=u.id) }}" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="password" name="password" placeholder="new password (12+)" minlength="12" required autocomplete="new-password">
+      <button class="small">Reset</button>
+    </form>{% endif %}</td>
+</tr>
+{% endfor %}</tbody></table>
+<section class="card narrow">
+  <h2>Add a user</h2>
+  <form method="post" action="{{ url_for('ui.admin_create_user') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>E-mail <input type="email" name="email" required></label>
+    <label>Full name <input name="full_name" required maxlength="120"></label>
+    <label>Role <select name="role"><option>viewer</option><option>owner</option><option>admin</option></select></label>
+    <label>Initial password (12+) <input type="password" name="password" minlength="12" required autocomplete="new-password"></label>
+    <button>Create</button>
+  </form>
+</section>
+<p class="muted">Deactivating a user or changing their role ends all of their sessions at once. Their grants stay recorded but stop working, because a deactivated account cannot sign in and no session survives.</p>
+{% endblock %}

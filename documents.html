@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>All documents (metadata only)</h1>
+<p class="muted">Administrators see that documents exist and who can reach them. They cannot open or download contents unless an owner grants them access like anyone else.</p>
+<form class="search" method="get"><input name="q" placeholder="Name or owner e-mail" value="{{ request.args.get('q', '') }}"><button>Filter</button></form>
+<table><thead><tr><th>Name</th><th>Owner</th><th>Category</th><th>Grants</th><th>Live links</th><th>Updated</th></tr></thead><tbody>
+{% for d in documents %}
+<tr><td><a href="{{ url_for('ui.admin_document', doc_id=d.id) }}">{{ d.name }}</a></td><td>{{ d.owner_email }}</td><td>{{ d.category }}</td>
+<td>{{ d.grant_count }}</td><td>{{ d.active_share_links }}</td><td>{{ d.updated_at.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+{% endfor %}</tbody></table>
+{% endblock %}

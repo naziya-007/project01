@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Admin · TrustVault{% endblock %}
+{% block content %}
+<div class="doc-head">
+  <h1>Activity dashboard</h1>
+  <form method="post" action="{{ url_for('ui.admin_verify') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="primary">Verify audit chain</button>
+  </form>
+</div>
+<p class="muted mono">Chain head: event #{{ head.head_id }} · {{ head.head_hash }}</p>
+
+<section class="card">
+  <h2>Worth noticing</h2>
+  {% for a in alerts %}
+    <div class="alert {{ a.severity }}"><span class="sev">{{ a.severity }}</span> {{ a.message }}</div>
+  {% else %}<p class="muted">Nothing unusual in the last hour.</p>{% endfor %}
+</section>
+
+<div class="grid">
+<section class="card">
+  <h2>Refused attempts</h2>
+  <table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Document</th><th>IP</th></tr></thead><tbody>
+  {% for e in denied %}<tr><td>{{ e.at.strftime('%m-%d %H:%M:%S') }}</td><td>{{ e.actor_email or 'anonymous' }}</td><td>{{ e.action }}</td>
+    <td class="mono">{% if e.document_id %}<a href="{{ url_for('ui.admin_document', doc_id=e.document_id) }}">{{ e.document_id[:8] }}…</a>{% endif %}</td><td>{{ e.ip }}</td></tr>
+  {% else %}<tr><td colspan="5" class="muted">None.</td></tr>{% endfor %}</tbody></table>
+</section>
+<section class="card">
+  <h2>Permission changes</h2>
+  <table><thead><tr><th>When</th><th>Who</th><th>Change</th><th>Details</th></tr></thead><tbody>
+  {% for e in permission_changes %}<tr><td>{{ e.at.strftime('%m-%d %H:%M:%S') }}</td><td>{{ e.actor_email }}</td><td>{{ e.action }}</td>
+    <td class="small">{{ e.details.get('email') or e.details.get('to_email') or '' }} {{ e.details.get('permission') or '' }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted">None.</td></tr>{% endfor %}</tbody></table>
+</section>
+</div>
+
+<section class="card">
+  <h2>Latest activity</h2>
+  <table><thead><tr><th>#</th><th>When (UTC)</th><th>Who</th><th>Action</th><th>Outcome</th><th>Document</th><th>IP</th></tr></thead><tbody>
+  {% for e in recent %}<tr><td>{{ e.id }}</td><td>{{ e.at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ e.actor_email or 'anonymous' }}</td>
+    <td>{{ e.action }}</td><td><span class="badge {{ e.outcome }}">{{ e.outcome }}</span></td>
+    <td class="mono">{% if e.document_id %}<a href="{{ url_for('ui.admin_document', doc_id=e.document_id) }}">{{ e.document_id[:8] }}…</a>{% endif %}</td><td>{{ e.ip }}</td></tr>
+  {% endfor %}</tbody></table>
+  <p><a href="{{ url_for('ui.admin_audit') }}">Full audit trail</a> · <a href="{{ url_for('api.admin_export') }}">Export CSV</a></p>
+</section>
+{% endblock %}
